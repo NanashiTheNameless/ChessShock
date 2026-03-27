@@ -1,0 +1,42 @@
+[project]
+name = "chessshock"
+version = "0.0.1"
+description = "Monitor Lichess games and optionally trigger OpenShock actions."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "NNCL v1.4" }
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "License :: Other/Proprietary License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+    "Topic :: Games/Entertainment :: Board Games",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+]
+
+authors = [
+    { name = "NanashiTheNameless" },
+    { name = "NanashiTheNameless", email = "NanashiTheNameless@NamelessNanashi.dev" }
+]
+
+maintainers = [
+    { name = "NanashiTheNameless" },
+    { name = "NanashiTheNameless", email = "NanashiTheNameless@NamelessNanashi.dev" }
+]
+
+dependencies = [
+    "Nanashi-OpenShockPY @ git+https://github.com/NanashiTheNameless/OpenShockPY.git",
+]
+
+[project.scripts]
+ChessShock = "chessshock.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["chessshock*"]
