@@ -1,6 +1,6 @@
 {
   "username": "your_lichess_username",
-  "user_agent": "ChessShock/0.0.1 (contact: replace-this-with-your-real-email@example.com)",
+  "user_agent": "ChessShock/0.0.2 (contact: replace-this-with-your-real-email@example.com)",
   "poll_interval_seconds": 5,
   "lichess": {
     "api_token": "",
@@ -20,7 +20,7 @@
       "action": "vibrate",
       "duration_ms": 600,
       "intensity": 100,
-      "only_on_new_turn": false,
+      "only_on_new_turn": true,
       "alert_on_startup": true,
       "cooldown_seconds": 5
     },

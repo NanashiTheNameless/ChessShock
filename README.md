@@ -153,7 +153,7 @@ The main config sections are:
 
 Current default alert behavior from [config.example.json](/home/null/ChessShock/config.example.json):
 
-- turn: enabled, `vibrate`, 600 ms, intensity 100, 5 second cooldown
+- turn: enabled, `vibrate`, 600 ms, intensity 100, only on new turn, 5 second cooldown
 - loss: enabled, `shock`, 800 ms, intensity 45, 5 second cooldown
 
 Important config notes:

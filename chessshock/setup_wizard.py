@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import getpass
+import sys
 import webbrowser
 from pathlib import Path
 from typing import Callable
@@ -28,12 +29,151 @@ SecretInputFn = Callable[[str], str]
 PrintFn = Callable[..., None]
 
 
+def _masked_secret_input(prompt: str) -> str:
+    """Read a secret from the terminal while echoing mask characters."""
+    if not _supports_masked_terminal_input():
+        return getpass.getpass(prompt)
+
+    try:
+        if sys.platform == "win32":
+            return _read_masked_secret_windows(prompt)
+        return _read_masked_secret_posix(prompt)
+    except (EOFError, KeyboardInterrupt):
+        raise
+    except Exception:
+        return getpass.getpass(prompt)
+
+
+def _supports_masked_terminal_input() -> bool:
+    stdin = sys.stdin
+    stdout = sys.stdout
+    return (
+        stdin is not None
+        and stdout is not None
+        and hasattr(stdin, "isatty")
+        and hasattr(stdout, "isatty")
+        and stdin.isatty()
+        and stdout.isatty()
+    )
+
+
+def _read_masked_secret(
+    prompt: str,
+    *,
+    read_char_fn: Callable[[], str],
+    write_fn: Callable[[str], object],
+    flush_fn: Callable[[], object],
+    line_ending: str = "\n",
+) -> str:
+    """Read a secret one character at a time and echo a `*` mask."""
+    buffer: list[str] = []
+    write_fn(prompt)
+    flush_fn()
+
+    while True:
+        char = read_char_fn()
+        if char in ("\r", "\n"):
+            write_fn(line_ending)
+            flush_fn()
+            return "".join(buffer)
+        if char == "\x03":
+            write_fn(line_ending)
+            flush_fn()
+            raise KeyboardInterrupt
+        if char == "\x04":
+            write_fn(line_ending)
+            flush_fn()
+            raise EOFError
+        if char in ("\b", "\x08", "\x7f"):
+            if buffer:
+                buffer.pop()
+                write_fn("\b \b")
+                flush_fn()
+            continue
+        if not char or not char.isprintable():
+            continue
+        buffer.append(char)
+        write_fn("*")
+        flush_fn()
+
+
+def _read_masked_secret_posix(prompt: str) -> str:
+    import termios
+    import tty
+
+    stdin = sys.stdin
+    stdout = sys.stdout
+    if stdin is None or stdout is None:
+        return getpass.getpass(prompt)
+
+    fd = stdin.fileno()
+    original_settings = termios.tcgetattr(fd)
+    try:
+        tty.setraw(fd)
+        return _read_masked_secret(
+            prompt,
+            read_char_fn=lambda: _read_posix_char(stdin),
+            write_fn=stdout.write,
+            flush_fn=stdout.flush,
+            line_ending="",
+        )
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, original_settings)
+        stdout.write("\r\n")
+        stdout.flush()
+
+
+def _read_posix_char(stdin) -> str:
+    char = stdin.read(1)
+    if char != "\x1b":
+        return char
+
+    _consume_posix_escape_sequence(stdin)
+    return ""
+
+
+def _consume_posix_escape_sequence(stdin) -> None:
+    import select
+
+    while True:
+        ready, _, _ = select.select([stdin], [], [], 0.01)
+        if not ready:
+            return
+        char = stdin.read(1)
+        if not char:
+            return
+        if "\x40" <= char <= "\x7e":
+            return
+
+
+def _read_masked_secret_windows(prompt: str) -> str:
+    import msvcrt
+
+    stdout = sys.stdout
+    if stdout is None:
+        return getpass.getpass(prompt)
+
+    def _read_char() -> str:
+        char = msvcrt.getwch()
+        if char in ("\x00", "\xe0"):
+            msvcrt.getwch()
+            return ""
+        return char
+
+    return _read_masked_secret(
+        prompt,
+        read_char_fn=_read_char,
+        write_fn=stdout.write,
+        flush_fn=stdout.flush,
+    )
+
+
 def run_configuration_wizard(
     path: str,
     *,
     existing_config: AppConfig | None = None,
     input_fn: InputFn = input,
-    secret_input_fn: SecretInputFn = getpass.getpass,
+    secret_input_fn: SecretInputFn = _masked_secret_input,
     browser_opener: Callable[[str], bool] | None = None,
     print_fn: PrintFn = print,
 ) -> AppConfig:
