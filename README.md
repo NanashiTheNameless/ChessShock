@@ -9,7 +9,7 @@
 - Use, study, modify, and share the work for free
 - Create and distribute modified versions
 - Deploy it for personal and non-commercial purposes
-- Accept **Non-Rewarded Donations** as defined in [section 1](<https://github.com/NanashiTheNameless/NNCL/blob/main/LICENSE.md#1-definitions>)
+- Accept **Non-Rewarded Donations** as defined in [section 1](<https://github.com/NanashiTheNameless/ChessShock/blob/main/LICENSE.md#1-definitions>)
 
 ### What You Must Do
 
