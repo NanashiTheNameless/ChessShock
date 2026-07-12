@@ -135,7 +135,7 @@ ChessShock uses an OpenShock API token stored in:
 
 During setup, ChessShock opens:
 
-- `https://next.openshock.app/settings/api-tokens`
+- `https://openshock.app/settings/api-tokens`
 
 if you do not already have a saved token, so you can create one and paste it into the wizard.
 

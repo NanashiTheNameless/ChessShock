@@ -1,6 +1,6 @@
 {
   "username": "your_lichess_username",
-  "user_agent": "ChessShock/0.0.2 (contact: replace-this-with-your-real-email@example.com)",
+  "user_agent": "ChessShock/0.0.3 (contact: replace-this-with-your-real-email@example.com)",
   "poll_interval_seconds": 5,
   "lichess": {
     "api_token": "",

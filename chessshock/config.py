@@ -12,11 +12,11 @@ from typing import Any
 
 APP_NAME = "ChessShock"
 DEFAULT_CONFIG_FILENAME = "config.json"
-USER_AGENT_TEMPLATE = "ChessShock/0.0.2 (contact: {email})"
+USER_AGENT_TEMPLATE = "ChessShock/0.0.3 (contact: {email})"
 DEFAULT_CONTACT_EMAIL = "replace-this-with-your-real-email@example.com"
 DEFAULT_USER_AGENT = USER_AGENT_TEMPLATE.format(email=DEFAULT_CONTACT_EMAIL)
 DEFAULT_LICHESS_BASE_URL = "https://lichess.org"
-DEFAULT_OPENSHOCK_TOKEN_PAGE_URL = "https://next.openshock.app/settings/api-tokens"
+DEFAULT_OPENSHOCK_TOKEN_PAGE_URL = "https://openshock.app/settings/api-tokens"
 DEFAULT_OAUTH_CLIENT_ID = "chessshock-cli"
 DEFAULT_OAUTH_REDIRECT_HOST = "127.0.0.1"
 DEFAULT_OAUTH_REDIRECT_PORT = 51265
@@ -496,7 +496,7 @@ def validate_user_agent(user_agent: str) -> str:
     email = extract_contact_email(user_agent)
     if email is None:
         raise ConfigError(
-            "user_agent must include a contact email address, for example `ChessShock/0.0.2 (contact: you@yourdomain.com)`"
+            "user_agent must include a contact email address, for example `ChessShock/0.0.3 (contact: you@yourdomain.com)`"
         )
 
     validate_contact_email(email)
