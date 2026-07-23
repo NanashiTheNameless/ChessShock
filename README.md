@@ -46,7 +46,7 @@ Free for ethical, non-commercial use, with the requirement to share your code an
 - it becomes your turn in an ongoing game
 - a newly finished game is detected as a loss
 
-Python 3.10 or newer is required.
+Python 3.10 or newer is required, along with `Nanashi-OpenShockPY` 0.1.0.0 or newer.
 
 ## Install
 
@@ -64,7 +64,21 @@ Local checkout fallback:
 python -m pip install -r requirements.txt
 ```
 
-Both install paths need network access and `git`, because `OpenShockPY` is installed from GitHub.
+`OpenShockPY` is pulled from PyPI as `Nanashi-OpenShockPY>=0.1.0.0`, so only the `pipx` path needs `git`.
+
+If you installed an older ChessShock that pulled `OpenShockPY` from GitHub, upgrade it.
+
+`pipx` installs (rebuilds the isolated environment from scratch):
+
+```bash
+pipx install --force 'git+https://github.com/NanashiTheNameless/ChessShock@main'
+```
+
+Local checkout installs:
+
+```bash
+python -m pip install --upgrade 'Nanashi-OpenShockPY>=0.1.0.0'
+```
 
 After installation, the console command is:
 

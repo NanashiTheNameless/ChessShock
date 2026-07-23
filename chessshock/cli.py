@@ -20,6 +20,10 @@ from .monitor import ChessShockMonitor
 from .oauth import LichessOAuthError
 from .setup_wizard import refresh_lichess_oauth_token, run_configuration_wizard
 
+OPENSHOCKPY_DISTRIBUTION = "Nanashi-OpenShockPY"
+MINIMUM_OPENSHOCKPY_VERSION = (0, 1, 0, 0)
+CHESSSHOCK_PIPX_SPEC = "git+https://github.com/NanashiTheNameless/ChessShock@main"
+
 
 def build_parser() -> argparse.ArgumentParser:
     default_path = str(default_config_path())
@@ -123,9 +127,14 @@ def main(argv: List[str] = None) -> int:
         from OpenShockPY import OpenShockClient, OpenShockPYError
     except ImportError:
         print(
-            "Dependency error: install the package and GitHub-backed dependencies with `python -m pip install -r requirements.txt`",
+            "Dependency error: install dependencies with `{0}`".format(_reinstall_command()),
             file=sys.stderr,
         )
+        return 1
+
+    version_error = _check_openshockpy_version()
+    if version_error is not None:
+        print(version_error, file=sys.stderr)
         return 1
 
     handled_errors = (
@@ -213,6 +222,63 @@ def _run_poll_cycle(
     except handled_errors as exc:
         logging.getLogger("chessshock").error("Polling failed: %s", exc)
         return default_poll_interval
+
+
+def _check_openshockpy_version() -> str | None:
+    """Return an error message when the installed OpenShockPY is too old."""
+    import OpenShockPY
+
+    installed = _parse_version(getattr(OpenShockPY, "__version__", ""))
+    if installed is None or installed >= MINIMUM_OPENSHOCKPY_VERSION:
+        return None
+
+    minimum = ".".join(str(part) for part in MINIMUM_OPENSHOCKPY_VERSION)
+    requirement = "{0}>={1}".format(OPENSHOCKPY_DISTRIBUTION, minimum)
+    return (
+        "Dependency error: OpenShockPY {0} is installed, but ChessShock needs {1} or newer; "
+        "upgrade with `{2}`".format(
+            OpenShockPY.__version__,
+            minimum,
+            _upgrade_command(requirement),
+        )
+    )
+
+
+def _upgrade_command(requirement: str) -> str:
+    """Return the upgrade command for the environment ChessShock runs in."""
+    venv = _pipx_venv_name()
+    if venv is not None:
+        return "pipx runpip {0} install --upgrade '{1}'".format(venv, requirement)
+    return "python -m pip install --upgrade '{0}'".format(requirement)
+
+
+def _reinstall_command() -> str:
+    """Return the dependency install command for the current environment."""
+    if _pipx_venv_name() is not None:
+        return "pipx install --force '{0}'".format(CHESSSHOCK_PIPX_SPEC)
+    return "python -m pip install -r requirements.txt"
+
+
+def _pipx_venv_name() -> str | None:
+    """Return the pipx venv name, or None when not running from a pipx install."""
+    prefix = Path(sys.prefix)
+    if (prefix / "pipx_metadata.json").is_file():
+        return prefix.name
+    return None
+
+
+def _parse_version(raw: str) -> Tuple[int, ...] | None:
+    """Parse a dotted numeric version, or None when it cannot be compared."""
+    release = raw.strip().split("+", 1)[0]
+    if not release or "+" in raw:
+        return None
+
+    parts = []
+    for chunk in release.split("."):
+        if not chunk.isdigit():
+            return None
+        parts.append(int(chunk))
+    return tuple(parts) or None
 
 
 def _maybe_load_existing_config(path: str):

@@ -1,1 +1,1 @@
-Nanashi-OpenShockPY @ git+https://github.com/NanashiTheNameless/OpenShockPY.git
+Nanashi-OpenShockPY>=0.1.0.0

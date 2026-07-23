@@ -1,6 +1,6 @@
 [project]
 name = "chessshock"
-version = "0.0.3"
+version = "0.0.4"
 description = "Monitor Lichess games and optionally trigger OpenShock actions."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -32,7 +32,7 @@ maintainers = [
 ]
 
 dependencies = [
-    "Nanashi-OpenShockPY @ git+https://github.com/NanashiTheNameless/OpenShockPY.git",
+    "Nanashi-OpenShockPY>=0.1.0.0",
 ]
 
 [project.scripts]
